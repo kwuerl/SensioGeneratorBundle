@@ -5,10 +5,23 @@
 {% endblock phpdoc_method_header %}
      *
 {% block phpdoc_method_annotations %}
-{% if 'annotation' == format %}
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes={
+     *     200 = "Returned when successful",
+     *     404 = "Returned when the {{ entity }} is not found"
+     *   }
+     * )
+     *
+     * @Annotations\View(template = "{{ bundle }}:{{ entity|replace({'\\': '/'}) }}:edit.html.twig")
      * @Route("/{id}/edit", name="{{ route_name_prefix }}_edit")
-     * @Method("GET")
-{% endif %}
+     *
+     * @param Request $request the request object
+     * @param int     $id      the {{ entity }} id
+     *
+     * @return FormTypeInterface
+     *
+     * @throws NotFoundHttpException when {{ entity }} not exist
 {% endblock phpdoc_method_annotations %}
      */
 {% block method_definition %}
@@ -29,11 +42,11 @@
 {% endblock method_body %}
 
 {% block method_return %}
-        return $this->render('{{ bundle }}:{{ entity|replace({'\\': '/'}) }}:edit.html.twig', array(
+        return array(
             '{{ entity_singularized }}' => ${{ entity_singularized }},
             'edit_form' => $editForm->createView(),
             'delete_form' => $deleteForm->createView(),
-        ));
+        );
 {% endblock method_return %}
     }
 

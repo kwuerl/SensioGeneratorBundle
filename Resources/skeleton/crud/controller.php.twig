@@ -12,6 +12,16 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 {%- endif %}
+use FOS\RestBundle\Util\Codes;
+use FOS\RestBundle\Controller\Annotations;
+use FOS\RestBundle\Controller\FOSRestController;
+use FOS\RestBundle\Request\ParamFetcherInterface;
+use FOS\RestBundle\View\RouteRedirectView;
+use FOS\RestBundle\View\View;
+use Nelmio\ApiDocBundle\Annotation\ApiDoc;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Form\FormTypeInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 use {{ namespace }}\Entity\{{ entity }};
 {% if 'new' in actions or 'edit' in actions %}
@@ -31,7 +41,7 @@ use {{ namespace }}\Form\{{ entity }}Type;
 {% endblock phpdoc_class_annotations %}
  */
 {% block class_definition %}
-class {{ entity_class }}Controller extends Controller
+class {{ entity_class }}Controller extends FOSRestController
 {% endblock class_definition %}
 {
 {% block class_body %}

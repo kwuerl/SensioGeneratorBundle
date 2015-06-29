@@ -4,10 +4,19 @@
 {% endblock phpdoc_method_header %}
      *
 {% block phpdoc_method_annotations %}
-{% if 'annotation' == format %}
-     * @Route("/{id}", name="{{ route_name_prefix }}_delete")
-     * @Method("DELETE")
-{% endif %}
+     * @ApiDoc(
+     *   resource = true,
+     *   statusCodes={
+     *     200="Returned when successful"
+     *   }
+     * )
+     *
+     * @Delete("/{id}", name="{{ route_name_prefix }}_delete")
+     *
+     * @param Request $request the request object
+     * @param int     $id      the restaurant id
+     *
+     * @return RouteRedirectView
 {% endblock phpdoc_method_annotations %}
      */
 {% block method_definition %}
@@ -32,7 +41,7 @@
 {% endblock method_body %}
 
 {% block method_return %}
-        return $this->redirect($this->generateUrl('{{ route_name_prefix }}'));
+        return $this->routeRedirectView($this->generateUrl('{{ route_name_prefix }}'));
 {% endblock method_return %}
     }
 

@@ -4,10 +4,24 @@
 {% endblock phpdoc_method_header %}
      *
 {% block phpdoc_method_annotations %}
-{% if 'annotation' == format %}
-     * @Route("/", name="{{ route_name_prefix }}_create")
-     * @Method("POST")
-{% endif %}
+     * @ApiDoc(
+     *   resource = true,
+     *   input = "{{ namespace }}\Form\{{ entity_class }}Type",
+     *   statusCodes = {
+     *     200 = "Returned when successful",
+     *     400 = "Returned when the form has errors"
+     *   }
+     * )
+     *
+     * @Annotations\View(
+     *   template = "{{ bundle }}:{{ entity|replace({'\\': '/'}) }}:new.html.twig",
+     *   statusCode = Codes::HTTP_BAD_REQUEST
+     * )
+     * @Post("/", name="{{ route_name_prefix }}_create")
+     *
+     * @param Request $request the request object
+     *
+     * @return FormTypeInterface|RouteRedirectView
 {% endblock phpdoc_method_annotations %}
      */
 {% block method_definition %}
@@ -25,19 +39,19 @@
             $em->flush();
 
             {% if 'show' in actions -%}
-                return $this->redirect($this->generateUrl('{{ route_name_prefix }}_show', array('id' => ${{ entity_class|lower }}->getId())));
+                return $this->routeRedirectView('{{ route_name_prefix }}_show', array('id' => ${{ entity_class|lower }}->getId()));
             {%- else -%}
-                return $this->redirect($this->generateUrl('{{ route_name_prefix }}'));
+                return $this->routeRedirectView('{{ route_name_prefix }}');
             {%- endif %}
 
         }
 {% endblock method_body %}
 
 {% block method_return %}
-        return $this->render('{{ bundle }}:{{ entity|replace({'\\': '/'}) }}:new.html.twig', array(
+        return array(
             '{{ entity_class|lower }}' => ${{ entity_class|lower }},
             'form'   => $form->createView(),
-        ));
+        );
 {% endblock method_return %}
     }
 

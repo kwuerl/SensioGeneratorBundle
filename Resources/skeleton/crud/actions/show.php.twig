@@ -5,10 +5,23 @@
 {% endblock phpdoc_method_header %}
      *
 {% block phpdoc_method_annotations %}
-{% if 'annotation' == format %}
-     * @Route("/{id}", name="{{ route_name_prefix }}_show")
-     * @Method("GET")
-{% endif %}
+     * @ApiDoc(
+     *   output = "{{ namespace }}\Entity\{{ entity }}",
+     *   statusCodes = {
+     *     200 = "Returned when successful",
+     *     404 = "Returned when the {{ entity_singularized }} is not found"
+     *   }
+     * )
+     *
+     * @Annotations\View(template = "{{ bundle }}:{{ entity|replace({'\\': '/'}) }}:show.html.twig",templateVar="{{ entity_singularized }}")
+     * @Get("/{id}", name="{{ route_name_prefix }}_show")
+     *
+     * @param Request $request the request object
+     * @param int     $id      the {{ entity_singularized }} id
+     *
+     * @return array
+     *
+     * @throws NotFoundHttpException when {{ entity_singularized }} not exist   
 {% endblock phpdoc_method_annotations %}
      */
 {% block method_definition %}
@@ -24,17 +37,16 @@
             throw $this->createNotFoundException('Unable to find {{ entity }} entity.');
         }
 {% if 'delete' in actions %}
-
         $deleteForm = $this->createDeleteForm($id);
 {% endif %}
 {% endblock method_body %}
 
 {% block method_return %}
-        return $this->render('{{ bundle }}:{{ entity|replace({'\\': '/'}) }}:show.html.twig', array(
+        return array(
             '{{ entity_singularized }}' => ${{ entity_singularized }},
 {% if 'delete' in actions %}
             'delete_form' => $deleteForm->createView(),
 {% endif %}
-        ));
+        );
 {% endblock method_return %}
     }

@@ -4,10 +4,27 @@
 {% endblock phpdoc_method_header %}
      *
 {% block phpdoc_method_annotations %}
-{% if 'annotation' == format %}
-     * @Route("/{id}", name="{{ route_name_prefix }}_update")
-     * @Method("PUT")
-{% endif %}
+     * @ApiDoc(
+     *   resource = true,
+     *   input = "{{ namespace }}\Form\{{ entity_class }}Type",
+     *   statusCodes = {
+     *     200 = "Returned when successful",
+     *     400 = "Returned when the form has errors"
+     *   }
+     * )
+     *
+     * @Annotations\View(
+     *   template = "{{ bundle }}:{{ entity|replace({'\\': '/'}) }}:update.html.twig",
+     *   templateVar="form"
+     * )
+     * @Put("/{id}", name="{{ route_name_prefix }}_update")
+     *
+     * @param Request $request the request object
+     * @param int     $id      the restaurant id
+     *
+     * @return FormTypeInterface|RouteRedirectView
+     *
+     * @throws NotFoundHttpException when restaurant not exist
 {% endblock phpdoc_method_annotations %}
      */
 {% block method_definition %}
@@ -22,6 +39,13 @@
         if (!${{ entity_singularized }}) {
             throw $this->createNotFoundException('Unable to find {{ entity }} entity.');
         }
+        if (false === ${{ entity_singularized }}) {
+            ${{ entity_singularized }} = new {{ entity_class }}();
+            ${{ entity_singularized }}->id = $id;
+            $statusCode = Codes::HTTP_CREATED;
+        } else {
+            $statusCode = Codes::HTTP_NO_CONTENT;
+        }
 
         $deleteForm = $this->createDeleteForm($id);
         $editForm = $this->createEditForm(${{ entity_singularized }});
@@ -30,15 +54,15 @@
         if ($editForm->isValid()) {
             $em->flush();
 
-            return $this->redirect($this->generateUrl('{{ route_name_prefix }}_edit', array('id' => $id)));
+            return $this->routeRedirectView('{{ route_name_prefix }}_edit', array('id' => ${{ entity_singularized }}->id), $statusCode);
         }
 {% endblock method_body %}
 
 {% block method_return %}
-        return $this->render('{{ bundle }}:{{ entity|replace({'\\': '/'}) }}:edit.html.twig', array(
+        return array(
             '{{ entity_singularized }}' => ${{ entity_singularized }},
             'edit_form' => $editForm->createView(),
             'delete_form' => $deleteForm->createView(),
-        ));
+        );
 {% endblock method_return %}
     }
